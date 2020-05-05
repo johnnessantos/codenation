@@ -14,7 +14,7 @@
 
 # ## _Setup_ geral
 
-# In[2]:
+# In[1]:
 
 
 import pandas as pd
@@ -25,7 +25,7 @@ import seaborn as sns
 from statsmodels.distributions.empirical_distribution import ECDF
 
 
-# In[4]:
+# In[2]:
 
 
 #%matplotlib inline
@@ -42,7 +42,7 @@ sns.set()
 
 # ### _Setup_ da parte 1
 
-# In[6]:
+# In[3]:
 
 
 np.random.seed(42)
@@ -59,7 +59,7 @@ dataframe = pd.DataFrame({"normal": sct.norm.rvs(20, 4, size=10000),
 
 
 
-# In[8]:
+# In[4]:
 
 
 # Sua análise da parte 1 começa aqui.
@@ -75,7 +75,7 @@ dataframe = pd.DataFrame({"normal": sct.norm.rvs(20, 4, size=10000),
 dataframe.shape
 
 
-# In[10]:
+# In[5]:
 
 
 # 2. Verificar os primeiros registros (ok)
@@ -83,7 +83,7 @@ dataframe.shape
 dataframe.head()
 
 
-# In[12]:
+# In[6]:
 
 
 # 3. Verificar os tipos de dados (ok)
@@ -91,7 +91,7 @@ dataframe.head()
 dataframe.info()
 
 
-# In[14]:
+# In[7]:
 
 
 # 4. Verificar informações estatisticas
@@ -101,21 +101,85 @@ dataframe.describe().T
 
 # # Analise exploratória dos dados
 
+# ### Demonstrando a distribuição dos dados
+
+# In[8]:
+
+
+sns.pairplot(data=dataframe)
+plt.suptitle('Gráficos de histograma e dispersão das váriaveis')
+plt.show()
+
+
+# ### Bloxplot: Observar a variação por quartis
+
+# In[9]:
+
+
+plt.subplot(221)
+fig1 = sns.boxplot(dataframe['normal'], orient='v')
+
+plt.subplot(222)
+fig2 = sns.boxplot(dataframe['binomial'], orient='v')
+
+plt.suptitle('Distribuição das váriaveis ao longo dos quartis')
+plt.show()
+
+
+# # Plotando a função ECDF
+
+# In[10]:
+
+
+# Definition of function
+# Ref. https://campus.datacamp.com/courses/statistical-thinking-in-python-part-1/graphical-exploratory-data-analysis?ex=12
+def compute_ecdf(data):
+    """Compute ECDF for a one-dimensional array of measurements."""
+    # Number of data points: n
+    n = len(data)
+
+    # x-data for the ECDF: x
+    x = np.sort(data)
+
+    # y-data for the ECDF: y
+    y = np.arange(1, n+1) / n
+
+    return x, y
+
+
+# In[11]:
+
+
+# Calculating series to plot ecdf
+x_normal, y_normal = compute_ecdf(dataframe['normal'])
+x_binomial, y_binomial = compute_ecdf(dataframe['binomial'])
+
+# Using number of lines equal to 1 and columns 2 for plotting
+plt.subplot(1, 2, 1)
+ax_normal = plt.plot(x_normal, y_normal, marker='.', linestyle='none')
+plt.xlabel('normal')
+plt.ylabel('ECDF')
+
+plt.subplot(1, 2, 2)
+ax_binomial = plt.plot(x_binomial, y_binomial, marker='.', linestyle='none')
+plt.xlabel('binomial')
+plt.ylabel('ECDF')
+
+plt.suptitle('Função de distribuição acumulada empírica')
+plt.show()
+
+
 # ## Questão 1
 # 
 # Qual a diferença entre os quartis (Q1, Q2 e Q3) das variáveis `normal` e `binomial` de `dataframe`? Responda como uma tupla de três elementos arredondados para três casas decimais.
 # 
 # Em outra palavras, sejam `q1_norm`, `q2_norm` e `q3_norm` os quantis da variável `normal` e `q1_binom`, `q2_binom` e `q3_binom` os quantis da variável `binom`, qual a diferença `(q1_norm - q1 binom, q2_norm - q2_binom, q3_norm - q3_binom)`?
 
-# In[16]:
+# In[12]:
 
 
 def q1():
-    dataframe_stats = dataframe.describe()
-    return (round(dataframe_stats['normal']['25%'] - dataframe_stats['binomial']['25%'], 3), 
-            round(dataframe_stats['normal']['50%'] - dataframe_stats['binomial']['50%'], 3),
-            round(dataframe_stats['normal']['75%'] - dataframe_stats['binomial']['75%'], 3)
-    )
+    return tuple(round(dataframe['normal'].quantile([0.25, 0.50, 0.75])-dataframe['binomial'].quantile([0.25, 0.50, 0.75]), 3))
 
 
 # Para refletir:
@@ -128,7 +192,7 @@ def q1():
 # 
 # Considere o intervalo $[\bar{x} - s, \bar{x} + s]$, onde $\bar{x}$ é a média amostral e $s$ é o desvio padrão. Qual a probabilidade nesse intervalo, calculada pela função de distribuição acumulada empírica (CDF empírica) da variável `normal`? Responda como uma único escalar arredondado para três casas decimais.
 
-# In[18]:
+# In[13]:
 
 
 def q2():
@@ -139,9 +203,12 @@ def q2():
     interval1 = normal_mean - normal_std
     interval2 = normal_mean + normal_std
 
+    # Definition of function ecdf
+    ecdf_normal_func = ECDF(dataframe['normal'])
+
     # Values applied to the ECDF function
-    interval1 = ECDF(dataframe['normal'])(interval1)
-    interval2 = ECDF(dataframe['normal'])(interval2)
+    interval1 = ecdf_normal_func(interval1)
+    interval2 = ecdf_normal_func(interval2)
     
     return float(round(interval2 - interval1, 3))
 
@@ -157,7 +224,7 @@ def q2():
 # 
 # Em outras palavras, sejam `m_binom` e `v_binom` a média e a variância da variável `binomial`, e `m_norm` e `v_norm` a média e a variância da variável `normal`. Quais as diferenças `(m_binom - m_norm, v_binom - v_norm)`?
 
-# In[20]:
+# In[14]:
 
 
 def q3():
@@ -176,7 +243,7 @@ def q3():
 
 # ### _Setup_ da parte 2
 
-# In[22]:
+# In[15]:
 
 
 stars = pd.read_csv("pulsar_stars.csv")
@@ -193,7 +260,7 @@ stars.loc[:, "target"] = stars.target.astype(bool)
 
 # ## Inicie sua análise da parte 2 a partir daqui
 
-# In[24]:
+# In[16]:
 
 
 # Sua análise da parte 2 começa aqui.
@@ -204,7 +271,7 @@ stars.loc[:, "target"] = stars.target.astype(bool)
 # 4. Verificar informações estatisticas
 
 
-# In[26]:
+# In[17]:
 
 
 # 1. Verificar a quantidade de linhas e colunas
@@ -214,18 +281,53 @@ print(f'shape of stars: {stars.shape}')
 stars.head()
 
 
-# In[28]:
+# In[18]:
 
 
 # 3. Verificar os tipos de dados
 print(stars.info())
 
 
-# In[30]:
+# In[19]:
 
 
 # 4. Verificar informações estatisticas
 stars.describe().T
+
+
+# # Analise exploratória
+
+# In[20]:
+
+
+# Obtain numerical data for analysis
+stars_numeric = stars.select_dtypes(include=np.number)
+
+ax = sns.pairplot(stars_numeric)
+
+#plt.suptitle('Visão geral dos dados')
+plt.show()
+
+
+# In[21]:
+
+
+# Counter of target
+stars_target_count = stars['target'].value_counts()
+
+# Plot
+ax = sns.barplot(x=stars_target_count.index, y=stars_target_count.values)
+
+plt.title('Quantidade por categoria no target')
+plt.show()
+
+
+# In[22]:
+
+
+# Plotting correlations
+ax = sns.heatmap(stars.corr(), annot=True, cmap='Blues')
+plt.show()
 
 
 # ## Questão 4
@@ -241,7 +343,7 @@ stars.describe().T
 # 
 # Quais as probabilidade associadas a esses quantis utilizando a CDF empírica da variável `false_pulsar_mean_profile_standardized`? Responda como uma tupla de três elementos arredondados para três casas decimais.
 
-# In[32]:
+# In[23]:
 
 
 def q4():
@@ -249,18 +351,19 @@ def q4():
     
     false_pulsar_mean_profile_standardized = sct.zscore(false_pulsar_mean_profile)
     
-    # Percent point function
-    ppf_q80 = sct.norm.ppf(0.80, loc=0, scale=1)
-    ppf_q90 = sct.norm.ppf(0.90, loc=0, scale=1)
-    ppf_q95 = sct.norm.ppf(0.95, loc=0, scale=1)
-    
     # Create the ecdf function with standardized star data
     compute_ecdf_stars = ECDF(false_pulsar_mean_profile_standardized)
     
-    return (round(compute_ecdf_stars(ppf_q80), 3),
-           round(compute_ecdf_stars(ppf_q90), 3),
-           round(compute_ecdf_stars(ppf_q95), 3)
-    )
+    # Percent point function
+    ppf_qs = sct.norm.ppf([0.80, 0.90, 0.95], loc=0, scale=1)
+    
+    return tuple([round(compute_ecdf_stars(x), 3) for x in ppf_qs])
+
+
+# In[ ]:
+
+
+
 
 
 # Para refletir:
@@ -272,27 +375,19 @@ def q4():
 # 
 # Qual a diferença entre os quantis Q1, Q2 e Q3 de `false_pulsar_mean_profile_standardized` e os mesmos quantis teóricos de uma distribuição normal de média 0 e variância 1? Responda como uma tupla de três elementos arredondados para três casas decimais.
 
-# In[34]:
+# In[24]:
 
 
 def q5():
     false_pulsar_mean_profile = stars.loc[stars['target']==False, 'mean_profile']
     
     false_pulsar_mean_profile_standardized = sct.zscore(false_pulsar_mean_profile)
+
+    # Calculating quartiles
+    ppf_qs = sct.norm.ppf([0.25, 0.50, 0.75], loc=0, scale=1)
+    false_pulsar_mean_profile_standardized_qs = np.percentile(false_pulsar_mean_profile_standardized, [25, 50, 75])
     
-    # Quartis q1, q2 and q3 stardardized
-    ppf_q1 = sct.norm.ppf(0.25, loc=0, scale=1)
-    ppf_q2 = sct.norm.ppf(0.50, loc=0, scale=1)
-    ppf_q3 = sct.norm.ppf(0.75, loc=0, scale=1)
-    
-    false_pulsar_mean_profile_standardized_q1 = np.percentile(false_pulsar_mean_profile_standardized, 25)
-    false_pulsar_mean_profile_standardized_q2 = np.percentile(false_pulsar_mean_profile_standardized, 50)
-    false_pulsar_mean_profile_standardized_q3 = np.percentile(false_pulsar_mean_profile_standardized, 75)
-    
-    return (round(false_pulsar_mean_profile_standardized_q1 - ppf_q1, 3),
-            round(false_pulsar_mean_profile_standardized_q2 - ppf_q2, 3),
-            round(false_pulsar_mean_profile_standardized_q3 - ppf_q3, 3)
-    )
+    return tuple([round(false_pulsar_mean_profile_standardized_qs[i]-ppf_qs[i], 3) for i in range(0, len(ppf_qs))])
 
 
 # Para refletir:
