@@ -1,4 +1,5 @@
 \venv
+\venvcodenation
 \__pycache__
 \.pytest_cache
 codenation.exe
