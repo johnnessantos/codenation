@@ -33,8 +33,8 @@ vl_total_veiculos_leves_grupo;numeric, economic value of the light weight vehicl
 vl_total_tancagem_grupo;numeric, total capacity of fuel storage of the economic group of the company
 vl_total_veiculos_antt_grupo;numeric, total number of vehicles of the economic group of the company that are registered with ANTT certification
 vl_potenc_cons_oleo_gas;numeric, potential consumption of oil and gas
-fl_optante_simei;boolean, true if the company is taxed as an MEI - Individual Micro Entrepreneur (Micro
-Empreendedor Individual)sg_uf_matriz;character, state of the main office location
+fl_optante_simei;boolean, true if the company is taxed as an MEI - Individual Micro Entrepreneur (Micro Empreendedor Individual)
+sg_uf_matriz;character, state of the main office location
 de_saude_tributaria;character, indicator of health tax status, Green if all tax are OK, Red if none are OK
 de_saude_rescencia;character, indicates time of update of the most lagged input of the indicator.
 nu_meses_rescencia;character, number of months since the last update of the most lagged input from saude_tributaria
@@ -141,8 +141,8 @@ de_faixa_faturamento_estimado;character value, class of the estimated revenue of
 de_faixa_faturamento_estimado_grupo;character value, class of the sum of estimated revenue for the matrix company and branches
 vl_faturamento_estimado_aux;numeric value, value of the estimated revenue
 vl_faturamento_estimado_grupo_aux;numeric value, sum of the estimated revenue for the matrix company and the branches
-qt_ex_funcionarios_cnseg;integer value, number of employees that have left the company.
-qt_funcionarios_grupo_cnseg;integer value, quantity of active employees considering the branches and matrix company.
+qt_ex_funcionarios;integer value, number of employees that have left the company.
+qt_funcionarios_grupo;integer value, quantity of active employees considering the branches and matrix company.
 percent_func_genero_masc;numeric value, share of male employees in the company
 percent_func_genero_fem;numeric value, share of female employees in the company
 idade_ate_18;integer value, quantity of employees under age of 18 years old.
