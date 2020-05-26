@@ -1,7 +1,6 @@
-# AceleraDev Codenation Data Science
-<div style="text-align:center"><img src="./docs/logo.png)" /></div>
-
-<div style="text-align:center"><img src="https://img.shields.io/badge/python-3.7-purple.svg" /></div>
+<p align="center"><img src="./docs/logo.png" /></p>
+<h3 align="center">AceleraDev Codenation Data Science</h3>
+<p align="center"><img src="https://img.shields.io/badge/python-3.7-purple.svg" /></p>
 
 Repositório da aceleração [codenation](https://www.codenation.dev/)  Data Science seguindo suas tarefas semanais com os exercícios realizados sendo todos eles em python 3.7+.
 
