@@ -4,6 +4,18 @@ import time
 
 import numpy as np
 import pandas as pd
+from sklearn.impute import SimpleImputer
+
+from sklearn.preprocessing import OneHotEncoder
+from sklearn.preprocessing import QuantileTransformer
+from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import RobustScaler
+
+from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
+from sklearn.pipeline import FeatureUnion
+
 
 from fonte_dados import FonteDados
 from experimentos import Experimentos
@@ -241,6 +253,60 @@ class Preprocessamento():
         dados = self.preencher_censo_renda(dados)
         dados = self.preencher_setor(dados)
         dados = self.preencher_faturamento(dados)
+
+        # Preenchendo dados dos setores na categoria OUTRO após analise
+        dados.loc[dados.setor.isnull(), 'setor'] = 'OUTRO'
+
+
+        # Pipeline de transformação dos dados 
+        # Variáveis númericas continuas
+        variaveis_numericas = ['idade_empresa_anos', 'empsetorcensitariofaixarendapopulacao', 'qt_socios', 
+                            'vl_faturamento_estimado_aux', 'vl_faturamento_estimado_grupo_aux', 'qt_filiais']
+
+        # Variaveis que não devem passar por transformações
+        variaveis_categoricas_binarias = ['fl_matriz', 'fl_me', 'fl_sa', 'fl_mei', 'fl_ltda','fl_st_especial', 
+                                        'fl_email', 'fl_telefone', 'fl_rm']
+
+        # Variáveis categoricas que precisam passar por transformação
+        variaveis_categoricas = ['setor', 'natureza_juridica_macro']
+
+        # Todas variáris selecionadas
+        variaveis = variaveis_numericas+variaveis_categoricas_binarias+variaveis_categoricas
+        pipeline_numerico = Pipeline(steps=[('seletor_num', 
+                                            ColumnTransformer(transformers=[
+                                                ('selecao_num', 'passthrough', variaveis_numericas)])),
+                                            ('imputacao', SimpleImputer(strategy = 'mean')),
+                                            ('scaler', QuantileTransformer(output_distribution='normal'))
+                                            #('scaler', QuantileTransformer(output_distribution='uniform'))
+                                            #('scaler', StandardScaler())
+                                            #('scaler', MinMaxScaler())
+                                            #('scaler', RobustScaler())
+                                        ])
+
+        pipeline_categorico = Pipeline(steps = [('cat_selector',
+                                                ColumnTransformer(transformers=[
+                                                    ('selecao_cat', 'passthrough', variaveis_categoricas)])),
+                                                ('one_hot_encoder', OneHotEncoder(sparse=False, handle_unknown='ignore'))])
+
+        pipeline_cat_binario = Pipeline(steps = [('cat_bin_selector',
+                                                ColumnTransformer(transformers=[
+                                                    ('selecao_cat', 'passthrough', variaveis_categoricas_binarias)]))])
+
+        pipeline_transformador = FeatureUnion(transformer_list = [('pipeline_numerico', pipeline_numerico),
+                                                                ('pipeline_categorico', pipeline_categorico),
+                                                                ('pipeline_cat_binario', pipeline_cat_binario)])
+        
+        # Ajuste do pipeline para capturar as variáveis resultantes com o objetivo de reconstruir o pipeline                              
+        pipeline_transformador.fit(dados[variaveis])
+
+        var_transformador = list(pipeline_transformador.transformer_list[0][1]['seletor_num'].get_feature_names())
+        var_transformador += list(pipeline_transformador.transformer_list[1][1]['one_hot_encoder'].get_feature_names())
+        var_transformador += list(pipeline_transformador.transformer_list[2][1]['cat_bin_selector'].get_feature_names())
+        var_transformador = [x.lower().replace(' ', '_') for x in var_transformador]
+
+        # Reconstruindo o dataframe
+        dados = pd.DataFrame(pipeline_transformador.transform(dados[variaveis]), columns=var_transformador)
+        
         return dados
 
 if __name__ == "__main__":
@@ -249,9 +315,12 @@ if __name__ == "__main__":
     inicio_execucao = time.time()
     try:
         dados_processados = preprocessamento.executar()
+
+        print(dados_processados.head())
+        fim_execucao = time.time()
+        tempo_executacao = fim_execucao - inicio_execucao
+        print(f'tempo de execução: {tempo_executacao} segundos')
     except KeyboardInterrupt:
         fim_execucao = time.time()
         tempo_executacao = fim_execucao - inicio_execucao
-        print(f'inicio execucao: {inicio_execucao}')
-        print(f'fim da execução: {fim_execucao}')
         print(f'tempo de execução: {tempo_executacao} segundos')
