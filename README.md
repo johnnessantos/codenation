@@ -79,6 +79,17 @@ O desafio pode ser acessado [aqui](./data-science-3/README.md) e a solução [aq
 
 O desafio pode ser acessado [aqui](./data-science-4/README.md) e a solução [aqui](./data-science-4/main.ipynb)
 
-### Semana 8
+### [Semana 8](/enem-2)
+* Apresentação de conceitos de regressão
+* Avaliação/Metricas para avaliação de modelos de regressão
+* AutoML
+* Apresentação do Google Cloud Platform (GCP)
 
-### Semana 9
+O desafio pode ser acessado [aqui](./enem-2/README.md) e a solução [aqui](./enem-2/main.ipynb)
+
+### [Semana 9](/enem-4)
+* Apresentação de modelos de classificação
+* Tensorflow
+* Problema de dados desbalanceados
+
+O desafio pode ser acessado [aqui](./enem-4/README.md) e a solução [aqui](./enem-4/main.ipynb)
